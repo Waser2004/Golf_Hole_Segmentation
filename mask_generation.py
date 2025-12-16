@@ -1,6 +1,7 @@
 from Data_converter import Data_converter
 
 import PIL.Image as Image
+import os
 
 if __name__ == "__main__":
     converter = Data_converter([768, 768], 1)

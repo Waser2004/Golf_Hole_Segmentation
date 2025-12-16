@@ -3,6 +3,7 @@ import csv
 import ast
 import cv2
 import os
+import PIL.Image as Image
 import matplotlib.pyplot as plt
 import numpy as np
 from math import *
@@ -50,6 +51,8 @@ class Data_converter(object):
             for row in real_rows
         ]
         self.outlines = [[] for _ in self.data]
+
+        self.reference_imgs = os.listdir("reference_imgs")
 
         # numpy arrays
         self.color_array = np.zeros((self.GRID_SIZE[1], self.GRID_SIZE[0]), dtype=np.int32)
@@ -141,6 +144,9 @@ class Data_converter(object):
             # delta x/y
             delta_x = - ((max_x - min_x) / 2 + min_x)
             delta_y = - ((max_y - min_y) / 2 + min_y)
+            
+            # create segmentation input
+            pasted_image_corners = self.generate_segmentation_input(data, delta_x, delta_y)
 
             # calculate offset
             for i, outline in enumerate(self.outlines[index]):
@@ -173,13 +179,36 @@ class Data_converter(object):
             # apply outline mask
             self.color_array = np.where(mask == 1, self.color_array, 0)
 
+            # create a mask that covers the whole image
+            full_mask = np.ones_like(self.color_array, dtype=np.uint8)
+            cv2.fillConvexPoly(full_mask, np.array(pasted_image_corners, dtype=np.int32), color=0)
+            self.color_array = np.where(full_mask == 0, self.color_array, 20)
+
             # store data in variable
             self.converted_data.update({f"{hole_index}": copy.deepcopy(self.color_array)})
 
         # return data
         return self.converted_data[f"{hole_index}"]
 
+    # generate segmentation input
+    def generate_segmentation_input(self, data, hole_delta_x, hole_delta_y):
+        image_path = "reference_imgs/" + [img for img in self.reference_imgs if img.count(data[0])][0]
+        ref_image = Image.open(image_path)
+        scale = data[1]
+        new_size = (int(ref_image.width * scale), int(ref_image.height * scale))
+        scaled_image = ref_image.resize(new_size)
 
+        white_image = Image.new('RGB', (768, 768), color='white')
+        offset_x = int(hole_delta_x * scale) 
+        offset_y = int(hole_delta_y * scale)
+        x = (self.GRID_SIZE[0] - new_size[0]) // 2 + offset_x
+        y = (self.GRID_SIZE[1] - new_size[1]) // 2 + offset_y
+        white_image.paste(scaled_image, (x, y))
+        white_image.save("golf_holes/" + f"{data[0]}.png")
+
+        # return the corner coordinates of the pasted image
+        return [(x, y), (x + new_size[0], y), (x + new_size[0], y + new_size[1]), (x, y + new_size[1])]
+    
     # calculate polygon outline
     def calc_outline(self, data):
         # ready up for bezier calculation
