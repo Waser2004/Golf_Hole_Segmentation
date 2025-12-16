@@ -182,7 +182,7 @@ class Data_converter(object):
             # create a mask that covers the whole image
             full_mask = np.ones_like(self.color_array, dtype=np.uint8)
             cv2.fillConvexPoly(full_mask, np.array(pasted_image_corners, dtype=np.int32), color=0)
-            self.color_array = np.where(full_mask == 0, self.color_array, 20)
+            self.color_array = np.where(full_mask == 0, self.color_array, 255)
 
             # store data in variable
             self.converted_data.update({f"{hole_index}": copy.deepcopy(self.color_array)})
