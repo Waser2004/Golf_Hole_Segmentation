@@ -177,7 +177,7 @@ class Data_converter(object):
             cv2.fillPoly(mask, [points], color=1)
 
             # apply outline mask
-            self.color_array = np.where(mask == 1, self.color_array, 0)
+            self.color_array = np.where(mask == 1, self.color_array, 255)
 
             # create a mask that covers the whole image
             full_mask = np.ones_like(self.color_array, dtype=np.uint8)
