@@ -1,4 +1,4 @@
-import cv2
+import os
 import numpy as np
 import PIL.Image as Image
 import albumentations as A
@@ -70,7 +70,7 @@ class GolfHoleSegmentationDataset(Dataset):
     def __getitem__(self, idx):
         # load image and mask
         image = np.array(Image.open(self.images[idx]).convert('RGB'))
-        mask  = np.array(Image.open(self.masks[idx]).convert('L'))
+        mask  = np.array(Image.open([mask for mask in self.masks if os.path.basename(mask) == os.path.basename(self.images[idx])][0]).convert('L'))
 
         # apply augmentations
         out = self.aug(image=image, mask=mask)
