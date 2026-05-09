@@ -1,0 +1,2 @@
+"""Golf hole segmentation utilities."""
+

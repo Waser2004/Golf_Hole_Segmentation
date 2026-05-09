@@ -1,0 +1,8 @@
+albumentations
+kagglehub
+matplotlib
+numpy
+opencv-python
+pillow
+torch
+torchvision

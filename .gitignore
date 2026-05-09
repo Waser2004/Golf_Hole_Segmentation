@@ -1,0 +1,18 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Local model outputs and generated artifacts
+checkpoints/
+*.pth
+
+# Local editor/runtime files
+.env
+.venv/
+venv/
+
+pyproject.toml
+.vscode/
+src/golf_hole_segmentation/data_collection/
